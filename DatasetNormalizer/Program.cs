@@ -194,6 +194,9 @@ namespace DatasetNormalizer
             string[] parts = data.Split('/');
 
             if (parts.Length != 2)
+                parts = data.Split("`/");
+
+            if (parts.Length != 2)
                 throw new ArgumentException("Invalid data.", nameof(data));
 
             return (parts[0], parts[1]);
