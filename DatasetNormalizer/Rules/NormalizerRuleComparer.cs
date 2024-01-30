@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace DatasetNormalizer.Rules
@@ -47,11 +48,20 @@ namespace DatasetNormalizer.Rules
             if (rule is ReplaceRule)
                 return 6;
 
-            if (rule is StringToNumberRule)
+            if (rule is FloorDoubleRule)
                 return 7;
+
+            if (rule is DoubleToIntegerRule)
+                return 8;
+
+            if (rule is StringToNumberRule)
+                return 9;
             
             if (rule is LimitLengthRule)
-                return 8;
+                return 10;
+            
+            if (rule is NullToZeroRule)
+                return 11;
 
             throw new NotSupportedException("Rule type not supported.");
         }

@@ -1,7 +1,9 @@
 ﻿using DatasetNormalizer.Csv;
 using DatasetNormalizer.Rules;
 using Mono.Options;
+using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace DatasetNormalizer
 {
@@ -26,16 +28,19 @@ namespace DatasetNormalizer
         private static bool removeHeader;
         private static bool addHeader;
         private static bool longHeader;
+        private static bool floorDoubles;
+        private static bool convertDoublesToIntegers;
+        private static bool convertNullsToZeros;
         private static bool convertStringsToNumbers;
         private static bool removeLastChar;
         private static bool ignoreLastEmptyColumn;
 
-        private static List<int> removeRowList = new();
-        private static List<int> removeColumnList = new();
-        private static List<string> removeList = new();
-        private static List<(string, string)> replaceList = new();
+        private static readonly List<int> removeRowList = new();
+        private static readonly List<int> removeColumnList = new();
+        private static readonly List<string> removeList = new();
+        private static readonly List<(string, string)> replaceList = new();
 
-        private static OptionSet options = new OptionSet()
+        private static readonly OptionSet options = new()
         {
             { "h|help", "show help", t => showHelp = t is not null },
             { "i|input=", "input file path", t => inputFilePath = t },
@@ -49,6 +54,9 @@ namespace DatasetNormalizer
             { "add-header", "add header", t => addHeader = t is not null },
             { "remove-header", "remove header", t => removeHeader = t is not null },
             { "long-header", "indicates whether the header should be long", t => longHeader = t is not null },
+            { "floor-double", "floor doubles", t => floorDoubles = t is not null },
+            { "double-to-integer", "convert doubles to integers", t => convertDoublesToIntegers = t is not null },
+            { "null-to-zero", "convert nulls to zeros", t => convertNullsToZeros = t is not null },
             { "string-to-number", "convert strings to numbers", t => convertStringsToNumbers = t is not null },
             { "remove-last", "remove last char", t => removeLastChar = t is not null },
             { "remove=", "remove substring", t => removeList.Add(t) },
@@ -88,6 +96,15 @@ namespace DatasetNormalizer
 
             if (removeLastChar)
                 normalizer.AddRule(new RemoveLastCharRule());
+
+            if (floorDoubles)
+                normalizer.AddRule(new FloorDoubleRule(headerDelimiter, quotes, ignoreLastEmptyColumn));
+            
+            if (convertDoublesToIntegers)
+                normalizer.AddRule(new DoubleToIntegerRule(headerDelimiter, quotes, ignoreLastEmptyColumn));
+            
+            if (convertNullsToZeros)
+                normalizer.AddRule(new NullToZeroRule(headerDelimiter));
             
             if (convertStringsToNumbers)
                 normalizer.AddRule(new StringToNumberRule(headerDelimiter, quotes, ignoreLastEmptyColumn));
