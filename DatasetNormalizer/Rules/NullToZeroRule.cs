@@ -22,6 +22,9 @@ namespace DatasetNormalizer.Rules
                 line = line.Replace(nullItem, zeroItem);
             }
 
+            if (line[^1] == Delimiter)
+                line += "0";
+
             return line;
         }
     }
