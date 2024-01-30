@@ -5,6 +5,23 @@ namespace DatasetNormalizer.Rules
 {
     internal class NormalizerRuleComparer : IComparer<NormalizerRule>
     {
+        private static readonly List<Type> RuleTypePriority = new()
+        {
+            typeof(RemoveRowRule),
+            typeof(RemoveColumnRule),
+            typeof(RemoveHeaderRule),
+            typeof(AddHeaderRule),
+            typeof(IgnoreFirstRowRule),
+            typeof(RemoveLastCharRule),
+            typeof(RemoveRule),
+            typeof(ReplaceRule),
+            typeof(FloorDoubleRule),
+            typeof(DoubleToIntegerRule),
+            typeof(StringToNumberRule),
+            typeof(LimitLengthRule),
+            typeof(NullToZeroRule),
+        };
+
         public int Compare(NormalizerRule? x, NormalizerRule? y)
         {
             if(x is null)
@@ -27,43 +44,11 @@ namespace DatasetNormalizer.Rules
 
         private static int GetRulePriority(NormalizerRule rule)
         {
-            if (rule is RemoveRowRule)
-                return 0;
-
-            if (rule is RemoveColumnRule)
-                return 1;
-
-            if (rule is RemoveHeaderRule)
-                return 2;
-
-            if (rule is AddHeaderRule)
-                return 3;
-
-            if (rule is RemoveLastCharRule)
-                return 4;
-
-            if (rule is RemoveRule)
-                return 5;
-
-            if (rule is ReplaceRule)
-                return 6;
-
-            if (rule is FloorDoubleRule)
-                return 7;
-
-            if (rule is DoubleToIntegerRule)
-                return 8;
-
-            if (rule is StringToNumberRule)
-                return 9;
+            int priority = RuleTypePriority.IndexOf(rule.GetType());
             
-            if (rule is LimitLengthRule)
-                return 10;
-            
-            if (rule is NullToZeroRule)
-                return 11;
-
-            throw new NotSupportedException("Rule type not supported.");
+            return priority >= 0
+                ? priority
+                : throw new NotSupportedException("Rule type not supported.");
         }
     }
 }

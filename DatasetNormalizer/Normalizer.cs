@@ -35,6 +35,8 @@ namespace DatasetNormalizer
             using var reader = new StreamReader(inputFilePath);
             using var writer = new StreamWriter(outputFilePath);
 
+            int lineIndex = 0;
+
             var addHeaderRule = _rules.FirstOrDefault(t => t is AddHeaderRule);
 
             if (addHeaderRule is not null)
@@ -45,7 +47,18 @@ namespace DatasetNormalizer
                 _rules.Remove(addHeaderRule);
             }
 
-            int lineIndex = 0;
+            var ignoreFirstRowRule = _rules.FirstOrDefault(t => t is IgnoreFirstRowRule);
+
+            if (ignoreFirstRowRule is not null)
+            {
+                string line = reader.ReadLine() ?? string.Empty;
+
+                if (!string.IsNullOrEmpty(line))
+                    writer.WriteLine(line);
+
+                lineIndex++;
+                _rules.Remove(ignoreFirstRowRule);
+            }
 
             while (!reader.EndOfStream)
             {

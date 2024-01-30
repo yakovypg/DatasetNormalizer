@@ -33,6 +33,7 @@ namespace DatasetNormalizer
         private static bool convertNullsToZeros;
         private static bool convertStringsToNumbers;
         private static bool removeLastChar;
+        private static bool ignoreFirstRow;
         private static bool ignoreLastEmptyColumn;
 
         private static readonly List<int> removeRowList = new();
@@ -61,7 +62,8 @@ namespace DatasetNormalizer
             { "remove-last", "remove last char", t => removeLastChar = t is not null },
             { "remove=", "remove substring", t => removeList.Add(t) },
             { "replace=", "replace substring (format: OLD/NEW)", t => replaceList.Add(ParseReplaceConfig(t)) },
-            { "ignore-last-empty-column", "indicates whether the last column should be ignored if it is empty", t => ignoreLastEmptyColumn = t is not null }
+            { "ignore-first-row", "indicates whether the first row should be ignored", t => ignoreFirstRow = t is not null },
+            { "ignore-last-empty-column", "indicates whether the last column should be ignored if it is empty", t => ignoreLastEmptyColumn = t is not null },
         };
 
         #endregion
@@ -109,6 +111,9 @@ namespace DatasetNormalizer
             if (convertStringsToNumbers)
                 normalizer.AddRule(new StringToNumberRule(headerDelimiter, quotes, ignoreLastEmptyColumn));
             
+            if (ignoreFirstRow)
+                normalizer.AddRule(new IgnoreFirstRowRule());
+
             if (limitLength.HasValue)
                 normalizer.AddRule(new LimitLengthRule(limitLength.Value, headerDelimiter, quotes, ignoreLastEmptyColumn));
 
