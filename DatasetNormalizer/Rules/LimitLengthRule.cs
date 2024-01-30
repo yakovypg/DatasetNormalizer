@@ -1,5 +1,4 @@
 using DatasetNormalizer.Csv;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace DatasetNormalizer.Rules
@@ -14,7 +13,7 @@ namespace DatasetNormalizer.Rules
             IgnoreLastEmptyColumn = ignoreLastEmptyColumn;
         }
 
-        public int MaxLength { get; set;}
+        public int MaxLength { get; set; }
         public char Delimiter { get; }
         public char Quotes { get; }
         public bool IgnoreLastEmptyColumn { get; }

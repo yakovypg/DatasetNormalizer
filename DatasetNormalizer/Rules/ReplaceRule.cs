@@ -1,3 +1,5 @@
+using System;
+
 namespace DatasetNormalizer.Rules
 {
     internal record ReplaceRule : NormalizerRule

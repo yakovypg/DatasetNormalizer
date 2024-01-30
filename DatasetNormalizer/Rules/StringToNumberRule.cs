@@ -1,5 +1,4 @@
 using DatasetNormalizer.Csv;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace DatasetNormalizer.Rules
