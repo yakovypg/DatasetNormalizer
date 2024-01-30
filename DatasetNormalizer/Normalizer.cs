@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 using System.Linq;
+using DatasetNormalizer.Services;
 
 namespace DatasetNormalizer
 {
@@ -35,8 +36,6 @@ namespace DatasetNormalizer
             using var reader = new StreamReader(inputFilePath);
             using var writer = new StreamWriter(outputFilePath);
 
-            int lineIndex = 0;
-
             var addHeaderRule = _rules.FirstOrDefault(t => t is AddHeaderRule);
 
             if (addHeaderRule is not null)
@@ -47,18 +46,7 @@ namespace DatasetNormalizer
                 _rules.Remove(addHeaderRule);
             }
 
-            var ignoreFirstRowRule = _rules.FirstOrDefault(t => t is IgnoreFirstRowRule);
-
-            if (ignoreFirstRowRule is not null)
-            {
-                string line = reader.ReadLine() ?? string.Empty;
-
-                if (!string.IsNullOrEmpty(line))
-                    writer.WriteLine(line);
-
-                lineIndex++;
-                _rules.Remove(ignoreFirstRowRule);
-            }
+            int lineIndex = 0;
 
             while (!reader.EndOfStream)
             {
@@ -94,8 +82,31 @@ namespace DatasetNormalizer
 
         private string HandleLine(string line, int lineIndex)
         {
+            if (lineIndex == 0 && _rules.Any(t => t is IgnoreFirstRowRule))
+                return IgnoreFirstLine(line);
+
             foreach (NormalizerRule rule in _rules)
+            {
                 line = rule.Handle(line, lineIndex);
+            }
+
+            return line;
+        }
+
+        private string IgnoreFirstLine(string line)
+        {
+            var ignoreFirstRowRule = _rules.FirstOrDefault(t => t is IgnoreFirstRowRule);
+
+            if (ignoreFirstRowRule is null)
+                return line;
+            
+            int ignoreFirstRowRulePriority = RulePriorityService.GetRulePriority(ignoreFirstRowRule);
+            var rules = _rules.Where(t => RulePriorityService.GetRulePriority(t) < ignoreFirstRowRulePriority);
+
+            foreach (NormalizerRule rule in rules)
+            {
+                line = rule.Handle(line, 0);
+            }
 
             return line;
         }
